@@ -17,20 +17,20 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.intake.IntakeCommand;
 import frc.robot.commands.limelight.AimAssistCommand;
-import frc.robot.commands.limelight.AlignCommand;
 import frc.robot.commands.limelight.FollowAlgaeCommand;
-import frc.robot.commands.limelight.SimpleAlignCommand;
-import frc.robot.commands.limelight.TurretAllignCommand;
+import frc.robot.commands.shooter.ShootCommand;
+import frc.robot.commands.shooter.TurnCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -53,12 +53,12 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class RobotContainer extends SubsystemBase {
         // The robot's subsystems
         private final DriveSubsystem m_robotDrive = new DriveSubsystem();
+        private final IntakeSubsystem m_robotIntake = new IntakeSubsystem(11);
+        private final ShooterSubsystem m_robotShooter = new ShooterSubsystem(10, 9);
 
         // Controller
         private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
 
-        private final SparkMax pewpewspark = new SparkMax(13, MotorType.kBrushless);
-        
         // Slew rate limiters for smooth joystick input (same as your original
         // Robot.java)
         private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(3.0);
@@ -66,7 +66,6 @@ public class RobotContainer extends SubsystemBase {
         private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(3.0);
 
         // Accurate period calculation using Timer
-        private double m_lastPeriodUpdate = 0.0;
         private double m_currentPeriod = 0.02;
 
         /**
@@ -80,7 +79,6 @@ public class RobotContainer extends SubsystemBase {
                 // real period
                 m_robotDrive.setDefaultCommand(
                                 new RunCommand(() -> {
-                                        updatePeriod();
                                         // Get TV (Exists) and TX (Angle)
                                         boolean hasTarget = LimelightHelpers.getTV("limelight-main");
                                         double tx = LimelightHelpers.getTX("limelight-main");
@@ -95,7 +93,7 @@ public class RobotContainer extends SubsystemBase {
                                         // Apply deadband and slew limiting
                                         double xInput = MathUtil.applyDeadband(m_driverController.getLeftY(),
                                                         OIConstants.kDriveDeadband);
-                                        double yInput = MathUtil.applyDeadband(m_driverController.getLeftX(),
+                                        double yInput = MathUtil.applyDeadband(-m_driverController.getLeftX(),
                                                         OIConstants.kDriveDeadband);
                                         double rotInput = MathUtil.applyDeadband(m_driverController.getRightX(),
                                                         OIConstants.kDriveDeadband);
@@ -111,46 +109,19 @@ public class RobotContainer extends SubsystemBase {
                                 }, m_robotDrive));
         }
 
-        // private SparkMax sparkMax = new SparkMax(15, MotorType.kBrushless);
-        // private SparkMax sparkMax2 = new SparkMax(13, MotorType.kBrushless);
-
-        private void spinMotor(double speed) {
-                // sparkMax.set(speed);
-        }
-
-        private void spinOtherMotor(double speed) {
-                // sparkMax2.set(-speed);
-        }
-
         private void configureButtonBindings() {
                 // R1 (right bumper) → X formation (lock wheels)
                 new JoystickButton(m_driverController, Button.kRightBumper.value)
                                 .whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
 
-                new JoystickButton(m_driverController, XboxController.Button.kA.value)
-                                  .whileTrue(new AimAssistCommand(m_driverController, 1 , "limelight-main", m_xspeedLimiter, m_yspeedLimiter, m_rotLimiter, m_robotDrive));
-
-                new JoystickButton(m_driverController, XboxController.Button.kB.value).whileTrue(new FollowAlgaeCommand("algae", "limelight-main", m_robotDrive));
-                // new JoystickButton(m_driverController, XboxController.Button.kB.value).whileFalse(new InstantCommand(() -> spinMotor(0)));
-                new JoystickButton(m_driverController, XboxController.Button.kX.value).whileTrue(new InstantCommand(() -> spinOtherMotor(1)));
-                new JoystickButton(m_driverController, XboxController.Button.kX.value).whileFalse(new InstantCommand(() -> spinOtherMotor(0)));
-                // A button → Limelight auto-align and range (overrides forward and rotation,
-                // // keeps strafing)
                 // new JoystickButton(m_driverController, XboxController.Button.kA.value)
-                // .whileTrue(AlignCommand());
-        }
+                                //   .whileTrue(new AimAssistCommand(m_driverController, 1 , "limelight-main", m_xspeedLimiter, m_yspeedLimiter, m_rotLimiter, m_robotDrive));
 
-        // Helper to compute real loop period
-        private void updatePeriod() {
-                double now = Timer.getFPGATimestamp();
-                m_currentPeriod = (m_lastPeriodUpdate == 0.0) ? 0.02 : (now - m_lastPeriodUpdate);
-                m_lastPeriodUpdate = now;
-        }
-
-        @Override
-        public void periodic() {
-                SmartDashboard.putNumber("LimelightTX", LimelightHelpers.getTX("limelight"));
-                SmartDashboard.putBoolean("LimelightHasTarget", LimelightHelpers.getTV("limelight"));
+                // new JoystickButton(m_driverController, XboxController.Button.kB.value).whileTrue(new FollowAlgaeCommand("algae", "limelight-main", m_robotDrive));
+                new JoystickButton(m_driverController, XboxController.Button.kY.value).toggleOnTrue(new IntakeCommand(m_robotIntake, -2000));
+                new JoystickButton(m_driverController, XboxController.Button.kA.value).whileTrue(new IntakeCommand(m_robotIntake, 2000));
+                new JoystickButton(m_driverController, XboxController.Button.kB.value).toggleOnTrue(new ShootCommand(m_robotShooter, 3350));
+                new JoystickButton(m_driverController, XboxController.Button.kX.value).onTrue(new TurnCommand(m_robotShooter, 10));
         }
 
         // private Command limelightDriveWithAimAssist() {

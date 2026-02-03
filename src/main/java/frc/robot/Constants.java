@@ -22,12 +22,16 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final class ShooterConstants {
+    public static final double kMaxRotationLeft = -90;
+    public static final double kMaxRotationRight = 90;
+  }
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8;
+    public static final double kMaxSpeedMetersPerSecond = 4.8 / 4;
     public static final double kMaxSpeed = 5.74;
-    public static final double kMaxAngularSpeed = 2 * Math.PI; // radians per second
+    public static final double kMaxAngularSpeed = 2 * Math.PI / 4; // radians per second
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(25);
@@ -50,7 +54,7 @@ public final class Constants {
     // Angular offsets of the modules relative to the chassis in radians
     // Updated Angular offsets
     // FL and BR are your "good" modules
-    public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
+    public static final double kFrontLeftChassisAngularOffset = Math.PI / 2;
     public static final double kBackRightChassisAngularOffset = Math.PI / 2; // Note: This is effectively the same
                                                                              // orientation as FL for BR position
 
@@ -61,26 +65,26 @@ public final class Constants {
     public static final double kBackLeftChassisAngularOffset = Math.PI; // Adjusting to match the orientation of the frame
 
     // SPARK MAX CAN IDs
-    // public static final int kFrontLeftDrivingCanId = 2;
-    // public static final int kRearLeftDrivingCanId = 4;
-    // public static final int kFrontRightDrivingCanId = 8;
-    // public static final int kRearRightDrivingCanId = 6;
+    public static final int kFrontLeftDrivingCanId = 2;
+    public static final int kRearLeftDrivingCanId = 6;
+    public static final int kFrontRightDrivingCanId = 4;
+    public static final int kRearRightDrivingCanId = 8;
 
-    // public static final int kFrontLeftTurningCanId = 1;
-    // public static final int kRearLeftTurningCanId = 3;
-    // public static final int kFrontRightTurningCanId = 7;
-    // public static final int kRearRightTurningCanId = 5;
+    public static final int kFrontLeftTurningCanId = 1;
+    public static final int kRearLeftTurningCanId = 5;
+    public static final int kFrontRightTurningCanId = 3;
+    public static final int kRearRightTurningCanId = 7;
 
     // JUGG SPARK MAX CAN IDs\
-    public static final int kFrontLeftDrivingCanId = 1;
-    public static final int kRearLeftDrivingCanId = 5;
-    public static final int kFrontRightDrivingCanId = 3;
-    public static final int kRearRightDrivingCanId = 7;
+    // public static final int kFrontLeftDrivingCanId = 1;
+    // public static final int kRearLeftDrivingCanId = 5;
+    // public static final int kFrontRightDrivingCanId = 3;
+    // public static final int kRearRightDrivingCanId = 7;
 
-    public static final int kFrontLeftTurningCanId = 2;
-    public static final int kRearLeftTurningCanId = 6;
-    public static final int kFrontRightTurningCanId = 4;
-    public static final int kRearRightTurningCanId = 8;
+    // public static final int kFrontLeftTurningCanId = 2;
+    // public static final int kRearLeftTurningCanId = 6;
+    // public static final int kFrontRightTurningCanId = 4;
+    // public static final int kRearRightTurningCanId = 8;
 
     public static final boolean kGyroReversed = false;
   }
