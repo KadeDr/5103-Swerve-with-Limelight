@@ -10,6 +10,7 @@ import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.IntakeConfigs;
 import frc.robot.Configs.ShooterConfigs;
@@ -34,6 +35,11 @@ public class ShooterSubsystem extends SubsystemBase {
         m_sparkFlex.configure(IntakeConfigs.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Turret Position", getPosition());
+    }
+
     public void runVelocity(double targetRPM) {
         m_flexCLC.setSetpoint(targetRPM, ControlType.kVelocity);
     }
@@ -43,11 +49,15 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void turnTable(double targetPosition) {
-        if (targetPosition < ShooterConstants.kMaxRotationLeft && targetPosition > ShooterConstants.kMaxRotationRight) { return; }
+        // if (targetPosition < ShooterConstants.kMaxRotationLeft && targetPosition > ShooterConstants.kMaxRotationRight) { return; }
         m_sparkCLC.setSetpoint(targetPosition, ControlType.kPosition);
     }
 
-    public void stopTurnTable() {
-        m_sparkMax.set(0);
+    //public void stopTurnTable() {
+    //    m_sparkMax.set(0);
+    //}
+
+    public double getPosition() {
+        return m_turnTableEncoder.getPosition();
     }
 }

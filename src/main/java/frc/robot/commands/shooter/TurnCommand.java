@@ -20,7 +20,8 @@ public class TurnCommand extends Command {
     }
 
     @Override
-    public void end (boolean interrupted) {
-        m_shooterSubsystem.stopTurnTable();
+    public boolean isFinished() {
+        // Check if error is small (e.g., within 2 degrees)
+        return Math.abs(m_targetPosition - m_shooterSubsystem.getPosition()) < 2.0;
     }
 }

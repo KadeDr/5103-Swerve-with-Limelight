@@ -25,6 +25,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.intake.IntakeCommand;
 import frc.robot.commands.limelight.AimAssistCommand;
+import frc.robot.commands.limelight.CalculateTurretPosition;
 import frc.robot.commands.limelight.FollowAlgaeCommand;
 import frc.robot.commands.shooter.ShootCommand;
 import frc.robot.commands.shooter.TurnCommand;
@@ -58,6 +59,7 @@ public class RobotContainer extends SubsystemBase {
 
         // Controller
         private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+        private final XboxController m_turretController = new XboxController(OIConstants.kTurretControllerPort);
 
         // Slew rate limiters for smooth joystick input (same as your original
         // Robot.java)
@@ -121,7 +123,7 @@ public class RobotContainer extends SubsystemBase {
                 new JoystickButton(m_driverController, XboxController.Button.kY.value).toggleOnTrue(new IntakeCommand(m_robotIntake, -2000));
                 new JoystickButton(m_driverController, XboxController.Button.kA.value).whileTrue(new IntakeCommand(m_robotIntake, 2000));
                 new JoystickButton(m_driverController, XboxController.Button.kB.value).toggleOnTrue(new ShootCommand(m_robotShooter, 3350));
-                new JoystickButton(m_driverController, XboxController.Button.kX.value).onTrue(new TurnCommand(m_robotShooter, 10));
+                new JoystickButton(m_turretController, XboxController.Button.kX.value).toggleOnTrue(new CalculateTurretPosition(m_robotShooter, "limelight-main"));
         }
 
         // private Command limelightDriveWithAimAssist() {

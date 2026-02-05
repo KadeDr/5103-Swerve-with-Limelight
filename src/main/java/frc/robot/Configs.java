@@ -13,10 +13,11 @@ public final class Configs {
 
                 static {
                         turnTableConfig.encoder
-                                .positionConversionFactor(15)
-                                .velocityConversionFactor(0.041667);
+                                .positionConversionFactor(9)
+                                .velocityConversionFactor(0.025);
                         turnTableConfig.closedLoop
-                                .p(0.1);
+                                .p(0.02) // 0.038 worked before
+                                .outputRange(-.4, .4);
                 }
         }
         public static final class IntakeConfigs {

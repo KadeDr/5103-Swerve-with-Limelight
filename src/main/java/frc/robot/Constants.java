@@ -23,8 +23,8 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
   public static final class ShooterConstants {
-    public static final double kMaxRotationLeft = -90;
-    public static final double kMaxRotationRight = 90;
+    public static final double kMaxRotationLeft = -180;
+    public static final double kMaxRotationRight = 180;
   }
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
@@ -108,6 +108,7 @@ public final class Constants {
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kTurretControllerPort = 1;
     public static final double kDriveDeadband = 0.05;
   }
 
