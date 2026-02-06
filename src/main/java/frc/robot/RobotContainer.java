@@ -17,33 +17,29 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.intake.IntakeCommand;
-import frc.robot.commands.limelight.AimAssistCommand;
 import frc.robot.commands.limelight.CalculateTurretPosition;
-import frc.robot.commands.limelight.FollowAlgaeCommand;
+import frc.robot.commands.limelight.LocateAprilTagCommand;
 import frc.robot.commands.shooter.ShootCommand;
-import frc.robot.commands.shooter.TurnCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 import java.util.List;
-
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import java.util.function.BooleanSupplier;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -82,8 +78,6 @@ public class RobotContainer extends SubsystemBase {
                 m_robotDrive.setDefaultCommand(
                                 new RunCommand(() -> {
                                         // Get TV (Exists) and TX (Angle)
-                                        boolean hasTarget = LimelightHelpers.getTV("limelight-main");
-                                        double tx = LimelightHelpers.getTX("limelight-main");
 
                                         // Rumble ONLY if we see target AND are aimed within 3 degrees
                                         // if (hasTarget && Math.abs(tx) < 3.0) {
@@ -123,7 +117,10 @@ public class RobotContainer extends SubsystemBase {
                 new JoystickButton(m_driverController, XboxController.Button.kY.value).toggleOnTrue(new IntakeCommand(m_robotIntake, -2000));
                 new JoystickButton(m_driverController, XboxController.Button.kA.value).whileTrue(new IntakeCommand(m_robotIntake, 2000));
                 new JoystickButton(m_driverController, XboxController.Button.kB.value).toggleOnTrue(new ShootCommand(m_robotShooter, 3350));
-                new JoystickButton(m_turretController, XboxController.Button.kX.value).toggleOnTrue(new CalculateTurretPosition(m_robotShooter, "limelight-main"));
+                new JoystickButton(m_turretController, XboxController.Button.kX.value).toggleOnTrue(new ConditionalCommand(new CalculateTurretPosition(
+                        m_robotShooter, "limelight-main"),
+                        new LocateAprilTagCommand(m_robotShooter, "limelight-main"),
+                        () -> LimelightHelpers.getTV("limelight-main")).repeatedly());
         }
 
         // private Command limelightDriveWithAimAssist() {

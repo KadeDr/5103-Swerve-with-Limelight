@@ -5,11 +5,11 @@ import frc.robot.LimelightHelpers;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class CalculateTurretPosition extends Command {
+public class LocateAprilTagCommand extends Command {
     private final ShooterSubsystem m_shooterSubsystem;
     private final String m_limelightName;
 
-    public CalculateTurretPosition(ShooterSubsystem shooterSubsystem, String limelightName) {
+    public LocateAprilTagCommand(ShooterSubsystem shooterSubsystem, String limelightName) {
         m_shooterSubsystem = shooterSubsystem;
         m_limelightName = limelightName;
         addRequirements(m_shooterSubsystem);
@@ -32,14 +32,15 @@ public class CalculateTurretPosition extends Command {
         double tx = LimelightHelpers.getTX(m_limelightName);
 
         double turretPosition = m_shooterSubsystem.getPosition();
-        double targetPosition = turretPosition + tx;
 
         double maxRotationLeft = ShooterConstants.kMaxRotationLeft;
         double maxRotationRight = ShooterConstants.kMaxRotationRight;
 
-        if (targetPosition < maxRotationLeft) {
+        double targetPosition = maxRotationLeft;
+
+        if (turretPosition <= maxRotationLeft) {
             targetPosition = maxRotationRight;
-        } else if (targetPosition > maxRotationRight) {
+        } else if (turretPosition >= maxRotationRight) {
             targetPosition = maxRotationLeft;
         }
 
