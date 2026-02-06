@@ -16,6 +16,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -33,6 +34,7 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -42,6 +44,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import java.util.List;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -115,6 +119,18 @@ public class RobotContainer extends SubsystemBase {
                 // R1 (right bumper) → X formation (lock wheels)
                 new JoystickButton(m_driverController, Button.kRightBumper.value)
                                 .whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive));
+
+                // X button on driver controller → follow PathPlanner "Straight Line" path
+                new JoystickButton(m_driverController, XboxController.Button.kX.value)
+        .whileTrue(Commands.defer(() -> {
+                try {
+                        PathPlannerPath path = PathPlannerPath.fromPathFile("Straight Line");
+                        return AutoBuilder.followPath(path);
+                } catch (Exception e) {
+                        DriverStation.reportError("Failed to load path: " + e.getMessage(), e.getStackTrace());
+                        return Commands.none();
+                }
+        }, java.util.Set.of(m_robotDrive)));
 
                 // new JoystickButton(m_driverController, XboxController.Button.kA.value)
                                 //   .whileTrue(new AimAssistCommand(m_driverController, 1 , "limelight-main", m_xspeedLimiter, m_yspeedLimiter, m_rotLimiter, m_robotDrive));
