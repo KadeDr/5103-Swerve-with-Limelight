@@ -29,8 +29,6 @@ public class LocateAprilTagCommand extends Command {
             return;
         }
 
-        double tx = LimelightHelpers.getTX(m_limelightName);
-
         double turretPosition = m_shooterSubsystem.getPosition();
 
         double maxRotationLeft = ShooterConstants.kMaxRotationLeft;
