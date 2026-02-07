@@ -16,22 +16,22 @@ import frc.robot.Configs.IntakeConfigs;
 import frc.robot.Configs.ShooterConfigs;
 
 public class ShooterSubsystem extends SubsystemBase {
-    private final SparkFlex m_sparkFlex;
+    private SparkFlex m_sparkFlex;
     private final SparkMax m_sparkMax;
-    private final SparkClosedLoopController m_flexCLC;
+    private SparkClosedLoopController m_flexCLC;
     private final SparkClosedLoopController m_sparkCLC;
     private AbsoluteEncoder m_turnTableAbsoluteEncoder;
     private RelativeEncoder m_turnTableEncoder;
 
     public ShooterSubsystem(int shooterCanId, int turnTableCanId) {
-        m_sparkFlex = new SparkFlex(shooterCanId, MotorType.kBrushless);
+        // m_sparkFlex = new SparkFlex(shooterCanId, MotorType.kBrushless);
         m_sparkMax = new SparkMax(turnTableCanId, MotorType.kBrushless);
         m_sparkCLC = m_sparkMax.getClosedLoopController();
-        m_flexCLC = m_sparkFlex.getClosedLoopController();
+        // m_flexCLC = m_sparkFlex.getClosedLoopController();
         m_turnTableAbsoluteEncoder = m_sparkMax.getAbsoluteEncoder();
         m_turnTableEncoder = m_sparkMax.getEncoder();
         m_sparkMax.configure(ShooterConfigs.turnTableConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        m_sparkFlex.configure(IntakeConfigs.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // m_sparkFlex.configure(IntakeConfigs.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     @Override
