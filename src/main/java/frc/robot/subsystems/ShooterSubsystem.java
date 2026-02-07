@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.IntakeConfigs;
 import frc.robot.Configs.ShooterConfigs;
+import frc.robot.commands.shooter.CalculateShooterSpeedCommand;
 
 public class ShooterSubsystem extends SubsystemBase {
     private SparkFlex m_sparkFlex;
@@ -22,16 +23,18 @@ public class ShooterSubsystem extends SubsystemBase {
     private final SparkClosedLoopController m_sparkCLC;
     private AbsoluteEncoder m_turnTableAbsoluteEncoder;
     private RelativeEncoder m_turnTableEncoder;
+    private final CalculateShooterSpeedCommand m_shooterSpeedCommand;
 
     public ShooterSubsystem(int shooterCanId, int turnTableCanId) {
-        // m_sparkFlex = new SparkFlex(shooterCanId, MotorType.kBrushless);
+        m_sparkFlex = new SparkFlex(shooterCanId, MotorType.kBrushless);
         m_sparkMax = new SparkMax(turnTableCanId, MotorType.kBrushless);
         m_sparkCLC = m_sparkMax.getClosedLoopController();
-        // m_flexCLC = m_sparkFlex.getClosedLoopController();
+        m_flexCLC = m_sparkFlex.getClosedLoopController();
         m_turnTableAbsoluteEncoder = m_sparkMax.getAbsoluteEncoder();
         m_turnTableEncoder = m_sparkMax.getEncoder();
         m_sparkMax.configure(ShooterConfigs.turnTableConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        // m_sparkFlex.configure(IntakeConfigs.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_shooterSpeedCommand = new CalculateShooterSpeedCommand("limelight-main");
+        m_sparkFlex.configure(IntakeConfigs.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     @Override
@@ -52,11 +55,11 @@ public class ShooterSubsystem extends SubsystemBase {
         m_sparkCLC.setSetpoint(targetPosition, ControlType.kPosition);
     }
 
-    //public void stopTurnTable() {
-    //    m_sparkMax.set(0);
-    //}
-
     public double getPosition() {
         return m_turnTableEncoder.getPosition();
+    }
+
+    public double getRPM() {
+        return m_shooterSpeedCommand.returnRPM();
     }
 }

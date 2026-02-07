@@ -5,26 +5,15 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.commands.intake.IntakeCommand;
-import frc.robot.commands.limelight.CalculateTurretPosition;
 import frc.robot.commands.limelight.LocateAprilTagCommand;
+import frc.robot.commands.shooter.CalculateTurretPosition;
 import frc.robot.commands.shooter.ShootCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -32,14 +21,10 @@ import frc.robot.subsystems.ShooterSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
-import java.util.List;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
@@ -128,10 +113,10 @@ public class RobotContainer extends SubsystemBase {
                                 //   .whileTrue(new AimAssistCommand(m_driverController, 1 , "limelight-main", m_xspeedLimiter, m_yspeedLimiter, m_rotLimiter, m_robotDrive));
 
                 // new JoystickButton(m_driverController, XboxController.Button.kB.value).whileTrue(new FollowAlgaeCommand("algae", "limelight-main", m_robotDrive));
-                new JoystickButton(m_driverController, XboxController.Button.kY.value).toggleOnTrue(new IntakeCommand(m_robotIntake, -2000));
-                new JoystickButton(m_driverController, XboxController.Button.kA.value).whileTrue(new IntakeCommand(m_robotIntake, 2000));
-                new JoystickButton(m_driverController, XboxController.Button.kB.value).toggleOnTrue(new ShootCommand(m_robotShooter, 3350));
-                new JoystickButton(m_turretController, XboxController.Button.kX.value).toggleOnTrue(new ConditionalCommand(new CalculateTurretPosition(
+                new JoystickButton(m_driverController, XboxController.Button.kY.value).toggleOnTrue(new IntakeCommand(m_robotIntake, -2000)); // Intake fuel
+                new JoystickButton(m_driverController, XboxController.Button.kA.value).whileTrue(new IntakeCommand(m_robotIntake, 2000)); // Outtake fuel
+                new JoystickButton(m_driverController, XboxController.Button.kRightBumper.value).toggleOnTrue(new ShootCommand(m_robotShooter, m_robotShooter.getRPM())); // Toggle shooter
+                new JoystickButton(m_turretController, XboxController.Button.kX.value).toggleOnTrue(new ConditionalCommand(new CalculateTurretPosition( // Toggle turntable
                         m_robotShooter, "limelight-main"),
                         new LocateAprilTagCommand(m_robotShooter, "limelight-main"),
                         () -> LimelightHelpers.getTV("limelight-main")).repeatedly());
