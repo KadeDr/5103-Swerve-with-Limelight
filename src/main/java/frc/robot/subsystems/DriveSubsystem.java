@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
@@ -19,10 +23,16 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.measure.MutDistance;
+import edu.wpi.first.units.measure.MutLinearVelocity;
+import edu.wpi.first.units.measure.MutVoltage;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.DriveConstants;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -60,16 +70,7 @@ public class DriveSubsystem extends SubsystemBase {
           m_rearRight.getPosition()
       });
 
-
-
-
-  
   // CLAUDE BELOW
-
-
-
-
-
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
@@ -92,8 +93,8 @@ public class DriveSubsystem extends SubsystemBase {
         this::getRobotRelativeSpeeds,
         (speeds, feedforwards) -> driveRobotRelative(speeds),
         new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-            new PIDConstants(5.0, 0.0, 0.0)  // Rotation PID constants
+            new PIDConstants(2.5, 0.0, 0.0), // Translation PID constants
+            new PIDConstants(2.5, 0.0, 0.0) // Rotation PID constants
         ),
         config,
         () -> {
@@ -103,19 +104,10 @@ public class DriveSubsystem extends SubsystemBase {
           }
           return false;
         },
-        this
-    );
+        this);
   }
 
-  
-
-
-  
   // CLAUDE ABOVE
-
-
-
-
 
   @Override
   public void periodic() {
@@ -158,19 +150,7 @@ public class DriveSubsystem extends SubsystemBase {
         pose);
   }
 
-
-  
-
-
-
-  
   // CLAUDE BELOW
-
-
-
-
-
-
 
   /**
    * Returns the current robot-relative ChassisSpeeds.
@@ -200,14 +180,7 @@ public class DriveSubsystem extends SubsystemBase {
     m_rearRight.setDesiredState(swerveModuleStates[3]);
   }
 
-
-
-
   // CLAUDE ABOVE
-
-
-
-
 
   /**
    * Method to drive the robot using joystick info.
@@ -290,5 +263,126 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public double getTurnRate() {
     return m_gyro.getRate() * (DriveConstants.kGyroReversed ? -1.0 : 1.0);
+  }
+
+  public void ResetGyro() {
+    m_gyro.reset();
+  }
+
+  // ========================
+  // SysId Methods :)
+  // ========================
+
+  // Mutable objects for SysId logging to avoid garbage collection stuttering
+  private final MutVoltage m_appliedVoltage = Volts.mutable(0);
+  private final MutDistance m_distance = Meters.mutable(0);
+  private final MutLinearVelocity m_velocity = MetersPerSecond.mutable(0);
+
+  // ==========================================
+  // SysId Routine: Translation (For Mass / kAlinear)
+  // ==========================================
+  private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
+      new SysIdRoutine.Config(),
+      new SysIdRoutine.Mechanism(
+          (Voltage volts) -> {
+            // 1. Lock modules straight forward
+            m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(0)));
+            m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(0)));
+            m_rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(0)));
+            m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(0)));
+
+            // 2. Apply raw voltage to all modules equally
+            m_frontLeft.setDriveVoltage(volts.in(Volts));
+            m_frontRight.setDriveVoltage(volts.in(Volts));
+            m_rearLeft.setDriveVoltage(volts.in(Volts));
+            m_rearRight.setDriveVoltage(volts.in(Volts));
+          },
+          log -> {
+            // 3. Log data for each module
+            log.motor("drive-frontLeft")
+                .voltage(m_appliedVoltage.mut_replace(m_frontLeft.getDriveVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(m_frontLeft.getDrivePositionMeters(), Meters))
+                .linearVelocity(m_velocity.mut_replace(m_frontLeft.getDriveVelocityMetersPerSecond(), MetersPerSecond));
+
+            log.motor("drive-frontRight")
+                .voltage(m_appliedVoltage.mut_replace(m_frontRight.getDriveVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(m_frontRight.getDrivePositionMeters(), Meters))
+                .linearVelocity(
+                    m_velocity.mut_replace(m_frontRight.getDriveVelocityMetersPerSecond(), MetersPerSecond));
+
+            log.motor("drive-rearLeft")
+                .voltage(m_appliedVoltage.mut_replace(m_rearLeft.getDriveVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(m_rearLeft.getDrivePositionMeters(), Meters))
+                .linearVelocity(m_velocity.mut_replace(m_rearLeft.getDriveVelocityMetersPerSecond(), MetersPerSecond));
+
+            log.motor("drive-rearRight")
+                .voltage(m_appliedVoltage.mut_replace(m_rearRight.getDriveVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(m_rearRight.getDrivePositionMeters(), Meters))
+                .linearVelocity(m_velocity.mut_replace(m_rearRight.getDriveVelocityMetersPerSecond(), MetersPerSecond));
+          },
+          this));
+
+  // ==========================================
+  // SysId Routine: Rotation (For MOI / kAangular)
+  // ==========================================
+  private final SysIdRoutine m_sysIdRoutineRotation = new SysIdRoutine(
+      new SysIdRoutine.Config(),
+      new SysIdRoutine.Mechanism(
+          (Voltage volts) -> {
+            // 1. Lock modules into an X-pattern
+            m_frontLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+            m_frontRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+            m_rearLeft.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+            m_rearRight.setDesiredState(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+
+            // 2. Apply raw voltage (Left side drives forward, Right side drives backward to
+            // spin)
+            m_frontLeft.setDriveVoltage(volts.in(Volts));
+            m_frontRight.setDriveVoltage(-volts.in(Volts));
+            m_rearLeft.setDriveVoltage(volts.in(Volts));
+            m_rearRight.setDriveVoltage(-volts.in(Volts));
+          },
+          log -> {
+            // 3. Re-use the exact same logging setup as translation
+            log.motor("drive-frontLeft")
+                .voltage(m_appliedVoltage.mut_replace(m_frontLeft.getDriveVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(m_frontLeft.getDrivePositionMeters(), Meters))
+                .linearVelocity(m_velocity.mut_replace(m_frontLeft.getDriveVelocityMetersPerSecond(), MetersPerSecond));
+
+            log.motor("drive-frontRight")
+                .voltage(m_appliedVoltage.mut_replace(m_frontRight.getDriveVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(m_frontRight.getDrivePositionMeters(), Meters))
+                .linearVelocity(
+                    m_velocity.mut_replace(m_frontRight.getDriveVelocityMetersPerSecond(), MetersPerSecond));
+
+            log.motor("drive-rearLeft")
+                .voltage(m_appliedVoltage.mut_replace(m_rearLeft.getDriveVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(m_rearLeft.getDrivePositionMeters(), Meters))
+                .linearVelocity(m_velocity.mut_replace(m_rearLeft.getDriveVelocityMetersPerSecond(), MetersPerSecond));
+
+            log.motor("drive-rearRight")
+                .voltage(m_appliedVoltage.mut_replace(m_rearRight.getDriveVoltage(), Volts))
+                .linearPosition(m_distance.mut_replace(m_rearRight.getDrivePositionMeters(), Meters))
+                .linearVelocity(m_velocity.mut_replace(m_rearRight.getDriveVelocityMetersPerSecond(), MetersPerSecond));
+          },
+          this));
+
+  // ==========================================
+  // Command Factories
+  // ==========================================
+  public Command sysIdQuasistaticTranslation(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutineTranslation.quasistatic(direction);
+  }
+
+  public Command sysIdDynamicTranslation(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutineTranslation.dynamic(direction);
+  }
+
+  public Command sysIdQuasistaticRotation(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutineRotation.quasistatic(direction);
+  }
+
+  public Command sysIdDynamicRotation(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutineRotation.dynamic(direction);
   }
 }

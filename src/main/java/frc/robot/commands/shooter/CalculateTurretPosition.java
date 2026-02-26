@@ -1,5 +1,7 @@
 package frc.robot.commands.shooter;
 
+import java.io.Console;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.ShooterConstants;
@@ -18,18 +20,19 @@ public class CalculateTurretPosition extends Command {
     @Override
     public void initialize() {
         LimelightHelpers.setPipelineIndex(m_limelightName, 0);
-        LimelightHelpers.setPriorityTagID(m_limelightName, 0);
+        LimelightHelpers.setPriorityTagID(m_limelightName, 12);
     }
 
     @Override
     public void execute() {
+        System.out.println("Turning turntable!");
         boolean tv = LimelightHelpers.getTV(m_limelightName);
 
         if (!tv) {
             return;
         }
 
-        double tx = LimelightHelpers.getTX(m_limelightName);
+        double tx = -LimelightHelpers.getTX(m_limelightName);
 
         double turretPosition = m_shooterSubsystem.getPosition();
         double targetPosition = turretPosition + tx;

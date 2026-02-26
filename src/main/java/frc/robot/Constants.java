@@ -22,16 +22,25 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+  public static final class IntakeConstants {
+    public static final int canId = 11;
+  }
+  public static final class IndexerConstants {
+    public static final int canId = 10;
+  }
   public static final class ShooterConstants {
-    public static final double kMaxRotationLeft = -180;
-    public static final double kMaxRotationRight = 180;
+    public static final int shooterCanId = 12;
+    public static final int turntableCanId = 9;
+
+    public static final double kMaxRotationLeft = -169.92;
+    public static final double kMaxRotationRight = 193.92;
   }
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
-    public static final double kMaxSpeedMetersPerSecond = 4.8 / 4;
+    public static final double kMaxSpeedMetersPerSecond = 4.8 / 2;
     public static final double kMaxSpeed = 5.74;
-    public static final double kMaxAngularSpeed = 2 * Math.PI / 4; // radians per second
+    public static final double kMaxAngularSpeed = 2 * Math.PI / 2; // radians per second
 
     // Chassis configuration
     public static final double kTrackWidth = Units.inchesToMeters(27);
@@ -54,26 +63,26 @@ public final class Constants {
     // Angular offsets of the modules relative to the chassis in radians
     // Updated Angular offsets
     // FL and BR are your "good" modules
-    public static final double kFrontLeftChassisAngularOffset = Math.PI / 2;
+    public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
     public static final double kBackRightChassisAngularOffset = Math.PI / 2; // Note: This is effectively the same
                                                                              // orientation as FL for BR position
 
     // Adjusting the ones that were off by -90 degrees
     // We add Math.PI / 2 (90 degrees) to "zero" them,
     // then potentially another Math.PI if the wheel spins the wrong way.
-    public static final double kFrontRightChassisAngularOffset = 0; // If it was -90, 0 usually brings it forward
+    public static final double kFrontRightChassisAngularOffset = 0 / 2; // If it was -90, 0 usually brings it forward
     public static final double kBackLeftChassisAngularOffset = Math.PI; // Adjusting to match the orientation of the frame
 
     // SPARK MAX CAN IDs
-    public static final int kFrontLeftDrivingCanId = 2;
-    public static final int kRearLeftDrivingCanId = 6;
-    public static final int kFrontRightDrivingCanId = 4;
-    public static final int kRearRightDrivingCanId = 8;
+    public static final int kFrontLeftDrivingCanId = 8;
+    public static final int kRearLeftDrivingCanId = 4;
+    public static final int kFrontRightDrivingCanId = 6;
+    public static final int kRearRightDrivingCanId = 2;
 
-    public static final int kFrontLeftTurningCanId = 1;
-    public static final int kRearLeftTurningCanId = 5;
-    public static final int kFrontRightTurningCanId = 3;
-    public static final int kRearRightTurningCanId = 7;
+    public static final int kFrontLeftTurningCanId = 7;
+    public static final int kRearLeftTurningCanId = 3;
+    public static final int kFrontRightTurningCanId = 5;
+    public static final int kRearRightTurningCanId = 1;
 
     // JUGG SPARK MAX CAN IDs\
     // public static final int kFrontLeftDrivingCanId = 1;
@@ -128,6 +137,12 @@ public final class Constants {
   }
 
   public static final class LimelightConstants {
+    public static final class PhysicalConstants {
+      public static final double kLimelightHeightInches = 26;
+      public static final double kHubAprilTagHeightInches = 44.25;
+      public static final double kLimelightAngleDegrees = 7.873;
+    }
+
     public static final class AlignConstants {
       public static final double kP_Rot = 0.0015;
       public static final double kP_Strafe = 0.0015;

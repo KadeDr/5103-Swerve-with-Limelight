@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
@@ -12,47 +11,51 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Configs.IntakeConfigs;
 import frc.robot.Configs.ShooterConfigs;
 import frc.robot.commands.shooter.CalculateShooterSpeedCommand;
 
 public class ShooterSubsystem extends SubsystemBase {
-    private SparkFlex m_sparkFlex;
-    private final SparkMax m_sparkMax;
-    private SparkClosedLoopController m_flexCLC;
-    private final SparkClosedLoopController m_sparkCLC;
-    private AbsoluteEncoder m_turnTableAbsoluteEncoder;
+    private SparkMax m_shooter;
+    private final SparkMax m_turntable;
+    private SparkClosedLoopController m_shooterCLC;
+    private final SparkClosedLoopController m_turntableCLC;
+    private RelativeEncoder m_shooterEncoder;
     private RelativeEncoder m_turnTableEncoder;
     private final CalculateShooterSpeedCommand m_shooterSpeedCommand;
 
     public ShooterSubsystem(int shooterCanId, int turnTableCanId) {
-        m_sparkFlex = new SparkFlex(shooterCanId, MotorType.kBrushless);
-        m_sparkMax = new SparkMax(turnTableCanId, MotorType.kBrushless);
-        m_sparkCLC = m_sparkMax.getClosedLoopController();
-        m_flexCLC = m_sparkFlex.getClosedLoopController();
-        m_turnTableAbsoluteEncoder = m_sparkMax.getAbsoluteEncoder();
-        m_turnTableEncoder = m_sparkMax.getEncoder();
-        m_sparkMax.configure(ShooterConfigs.turnTableConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_shooter = new SparkMax(shooterCanId, MotorType.kBrushless);
+        m_turntable = new SparkMax(turnTableCanId, MotorType.kBrushless);
+        m_turntableCLC = m_turntable.getClosedLoopController();
+        m_shooterCLC = m_shooter.getClosedLoopController();
+        m_shooterEncoder = m_shooter.getEncoder();
+        m_turnTableEncoder = m_turntable.getEncoder();
+        m_turntable.configure(ShooterConfigs.turntableConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         m_shooterSpeedCommand = new CalculateShooterSpeedCommand("limelight-main");
-        m_sparkFlex.configure(IntakeConfigs.intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_shooter.configure(ShooterConfigs.shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Turret Position", getPosition());
+        SmartDashboard.putNumber("Shooter Speed", getRPM());
     }
 
     public void runVelocity(double targetRPM) {
-        m_flexCLC.setSetpoint(targetRPM, ControlType.kVelocity);
+        m_shooterCLC.setSetpoint(targetRPM, ControlType.kVelocity);
     }
 
     public void stopMotor() {
-        m_sparkFlex.set(0);
+        m_shooter.set(0);
     }
 
     public void turnTable(double targetPosition) {
         // if (targetPosition < ShooterConstants.kMaxRotationLeft && targetPosition > ShooterConstants.kMaxRotationRight) { return; }
-        m_sparkCLC.setSetpoint(targetPosition, ControlType.kPosition);
+        m_turntableCLC.setSetpoint(targetPosition, ControlType.kPosition);
+    }
+
+    public void turnTableVelocity(double targetSpeed) {
+        m_turntableCLC.setSetpoint(targetSpeed, ControlType.kVelocity);
     }
 
     public double getPosition() {
@@ -60,6 +63,10 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public double getRPM() {
-        return m_shooterSpeedCommand.returnRPM();
+        return m_shooterEncoder.getVelocity(); 
+    }
+
+    public void ResetEncoder() {
+        m_turnTableEncoder.setPosition(0);
     }
 }

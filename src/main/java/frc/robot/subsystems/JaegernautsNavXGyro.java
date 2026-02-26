@@ -14,7 +14,7 @@ public final class JaegernautsNavXGyro extends AHRS {
 
     // The offset of the gyro
     // If your gyro isn't driving straight, adjust the offset till it does
-    private double angleOffset = 0;
+    private double angleOffset = -72;
 
     // Gets the gyro's port
     private JaegernautsNavXGyro() {

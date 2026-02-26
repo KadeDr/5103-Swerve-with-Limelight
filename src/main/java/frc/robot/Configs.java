@@ -9,24 +9,59 @@ import frc.robot.Constants.ModuleConstants;
 
 public final class Configs {
         public static final class ShooterConfigs {
-                public static final SparkMaxConfig turnTableConfig = new SparkMaxConfig();
+                public static final SparkMaxConfig shooterConfig = new SparkMaxConfig();
+                public static final SparkMaxConfig turntableConfig = new SparkMaxConfig();
 
                 static {
-                        turnTableConfig.encoder
-                                .positionConversionFactor(9)
-                                .velocityConversionFactor(0.025);
-                        turnTableConfig.closedLoop
-                                .p(0.02) // 0.038 worked before
-                                .outputRange(-.4, .4);
+                        shooterConfig
+                                        .idleMode(IdleMode.kCoast)
+                                        .smartCurrentLimit(80);
+                        shooterConfig.softLimit
+                                        .forwardSoftLimitEnabled(false)
+                                        .reverseSoftLimitEnabled(false);
+                        shooterConfig.closedLoop
+                                        .p(0.00022)
+                                        .feedForward.kV(0.00017);
+                        // .feedForward.kV(0.0000001);
+
+                        turntableConfig.encoder
+                                        .positionConversionFactor(9)
+                                        .velocityConversionFactor(0.025);
+                        turntableConfig.closedLoop
+                                        .p(0.038) // 0.038 worked for position, .0015 for velocity control
+                                        .outputRange(-.4, .4);
                 }
         }
-        public static final class IntakeConfigs {
-                public static final SparkFlexConfig intakeConfig = new SparkFlexConfig();
+
+        public static final class IndexerConfigs {
+                public static final SparkMaxConfig mainConfig = new SparkMaxConfig();
 
                 static {
-                        intakeConfig.closedLoop
-                                .p(0.0002)
-                                .feedForward.kV(0.000147);
+                        mainConfig
+                                        .smartCurrentLimit(80);
+                        mainConfig.softLimit
+                                        .forwardSoftLimitEnabled(false)
+                                        .reverseSoftLimitEnabled(false);
+                        mainConfig.closedLoop
+                                        .p(0.0004)
+                                        .feedForward.kV(0.00022);
+                        // .feedForward.kV(0.0000001);
+                }
+        }
+
+        public static final class IntakeConfigs {
+                public static final SparkFlexConfig mainConfig = new SparkFlexConfig();
+
+                static {
+                        mainConfig
+                                        .smartCurrentLimit(160);
+                        mainConfig.softLimit
+                                        .forwardSoftLimitEnabled(false)
+                                        .reverseSoftLimitEnabled(false);
+                        mainConfig.closedLoop
+                                        .p(0.0004)
+                                        .feedForward.kV(0.00018);
+                        // .feedForward.kV(0.0000001);
                 }
         }
 
