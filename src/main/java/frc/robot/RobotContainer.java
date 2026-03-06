@@ -157,7 +157,6 @@ public class RobotContainer extends SubsystemBase {
 
                 turretLayout.addString("Triggers", () -> "Rotate Turret");
                 turretLayout.addString("Right Bumper", () -> "Set X-Pattern");
-                turretLayout.addString("A Button", () -> "Reset Turret Encoder");
                 turretLayout.addString("X Button", () -> "Auto-Aim (Limelight)");
 
                 layoutTab.addBoolean("Field Relative", () -> fieldRelative)
