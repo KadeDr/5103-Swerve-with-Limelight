@@ -3,8 +3,10 @@ package frc.robot;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ModuleConstants;
 
 public final class Configs {
@@ -20,15 +22,14 @@ public final class Configs {
                                         .forwardSoftLimitEnabled(false)
                                         .reverseSoftLimitEnabled(false);
                         shooterConfig.closedLoop
-                                        .p(0.00022)
-                                        .feedForward.kV(0.00017);
+                                        .p(0.00022).feedForward.kV(0.00017);
                         // .feedForward.kV(0.0000001);
 
                         turntableConfig.encoder
                                         .positionConversionFactor(9)
                                         .velocityConversionFactor(0.025);
                         turntableConfig.closedLoop
-                                        .p(0.038) // 0.038 worked for position, .0015 for velocity control
+                                        .p(0.025) // 0.038 worked for position, .0015 for velocity control
                                         .outputRange(-.4, .4);
                 }
         }
@@ -38,30 +39,39 @@ public final class Configs {
 
                 static {
                         mainConfig
-                                        .smartCurrentLimit(80);
+                                        .smartCurrentLimit(60);
                         mainConfig.softLimit
                                         .forwardSoftLimitEnabled(false)
                                         .reverseSoftLimitEnabled(false);
                         mainConfig.closedLoop
-                                        .p(0.0004)
-                                        .feedForward.kV(0.00022);
+                                        .outputRange(-1, 1)
+                                        .p(0.005103)
+                                        .feedForward.kV(0.000285);
                         // .feedForward.kV(0.0000001);
                 }
         }
 
         public static final class IntakeConfigs {
                 public static final SparkFlexConfig mainConfig = new SparkFlexConfig();
+                public static final SparkFlexConfig invertedConfig = new SparkFlexConfig();
 
                 static {
                         mainConfig
-                                        .smartCurrentLimit(160);
+                                        .smartCurrentLimit(60);
                         mainConfig.softLimit
                                         .forwardSoftLimitEnabled(false)
                                         .reverseSoftLimitEnabled(false);
                         mainConfig.closedLoop
-                                        .p(0.0004)
-                                        .feedForward.kV(0.00018);
+                                        .outputRange(-1, 1)
+                                        .p(0.000118)
+                                                        // .i(0.00004)
+                                                        // .iZone(50)
+                                                        .feedForward
+                                        .kV(0.00018);
                         // .feedForward.kV(0.0000001);
+
+                        invertedConfig
+                                        .follow(IntakeConstants.canId, true);
                 }
         }
 

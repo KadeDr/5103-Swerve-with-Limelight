@@ -21,6 +21,7 @@ public class IntakeCommand extends Command {
     public void initialize() {
         // Just call the method in the subsystem
         m_intake.runVelocity(m_targetSpeed);
+        // m_intake.Test(-1);
     }
 
     @Override

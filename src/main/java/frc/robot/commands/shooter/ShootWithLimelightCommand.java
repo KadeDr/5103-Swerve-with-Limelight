@@ -1,32 +1,33 @@
 package frc.robot.commands.shooter;
 
-import org.opencv.core.Mat;
-
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.commands.indexer.SpinIndexerCommand;
 import frc.robot.subsystems.IndexerSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShootSubsystem;
 
 public class ShootWithLimelightCommand extends Command {
     private final int aprilTagId;
     private final String limelightName;
-    private final ShooterSubsystem shooterSubsystem;
+    private final ShootSubsystem shootSubsystem;
     private final IndexerSubsystem indexerSubsystem;
+    private final CommandXboxController controller;
 
     private boolean hasStarted = false;
+    private boolean isReversed = false;
 
-    public ShootWithLimelightCommand(ShooterSubsystem shooterSubsystem, IndexerSubsystem indexerSubsystem,
-            int aprilTagId, String limelightName) {
-        this.shooterSubsystem = shooterSubsystem;
+    public ShootWithLimelightCommand(ShootSubsystem shootSubsystem, IndexerSubsystem indexerSubsystem,
+            int aprilTagId, String limelightName, CommandXboxController controller) {
+        this.shootSubsystem = shootSubsystem;
         this.indexerSubsystem = indexerSubsystem;
         this.aprilTagId = aprilTagId;
         this.limelightName = limelightName;
+        this.controller = controller;
 
-        addRequirements(shooterSubsystem, indexerSubsystem);
+        addRequirements(shootSubsystem, indexerSubsystem);
     }
 
     @Override
@@ -38,6 +39,8 @@ public class ShootWithLimelightCommand extends Command {
 
     @Override
     public void execute() {
+        controller.povLeft().whileTrue(new InstantCommand(() -> isReversed = true));
+        controller.povLeft().whileFalse(new InstantCommand(() -> isReversed = false));
         System.out.println("Running shooter!");
         boolean tv = LimelightHelpers.getTV(limelightName);
         double id = LimelightHelpers.getFiducialID(limelightName);
@@ -46,37 +49,33 @@ public class ShootWithLimelightCommand extends Command {
         if (!tv || !isCorrectTag)
             return;
 
-        SmartDashboard.putBoolean("Has proper target", LimelightHelpers.getFiducialID(limelightName) == 12
-                || LimelightHelpers.getFiducialID(limelightName) == 16);
-
         double h1 = LimelightConstants.PhysicalConstants.kLimelightHeightInches;
         double h2 = LimelightConstants.PhysicalConstants.kHubAprilTagHeightInches;
 
         double a1 = LimelightConstants.PhysicalConstants.kLimelightAngleDegrees;
         double tY = LimelightHelpers.getTY(limelightName);
-        
+
         double distanceInches = ((h2 - h1) / Math.tan(Math.toRadians(a1 - tY))); // Previously 19
         double distanceFeet = (distanceInches / 12);
         double speedRpm = -0.00883 * (distanceInches * distanceInches) + 12.323 * distanceInches + 2003.82;
 
-        SmartDashboard.putNumber("Limelight TY", tY);
-        SmartDashboard.putNumber("Target Shooter Speed RPM", speedRpm);
-        SmartDashboard.putBoolean("Has started", hasStarted);
-        SmartDashboard.putNumber("Robot distance", distanceInches);
-
-        shooterSubsystem.runVelocity(speedRpm);
+        shootSubsystem.runVelocity(speedRpm);
 
         if (!hasStarted) {
             Timer.delay(0.5);
             hasStarted = true;
         }
 
-        indexerSubsystem.spin(1500);
+        if (isReversed) {
+            indexerSubsystem.spin(-1500);
+        } else {
+            indexerSubsystem.spin(1500);
+        }
     }
 
     @Override
     public void end(boolean isFinished) {
         indexerSubsystem.stopMotor();
-        shooterSubsystem.stopMotor();
+        shootSubsystem.stopMotor();
     }
 }

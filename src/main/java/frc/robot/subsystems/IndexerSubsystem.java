@@ -15,15 +15,15 @@ public class IndexerSubsystem extends SubsystemBase {
     private final SparkMax m_sparkMax;
     private final SparkClosedLoopController m_clc;
 
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("Indexer Speed", getRPM());
-    }
-
     public IndexerSubsystem(int canId) {
         m_sparkMax = new SparkMax(canId, MotorType.kBrushless);
         m_clc = m_sparkMax.getClosedLoopController();
         m_sparkMax.configure(IndexerConfigs.mainConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Indexer Speed", getRPM());
     }
 
     public void spin(double rpm) {

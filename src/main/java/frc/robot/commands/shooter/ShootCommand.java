@@ -2,14 +2,14 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShootSubsystem;
 
 public class ShootCommand extends Command {
-    private final ShooterSubsystem m_shooter;
+    private final ShootSubsystem m_shooter;
     private final double m_targetSpeed;
 
     // REMOVE SparkFlex from the arguments!
-    public ShootCommand(ShooterSubsystem subsystem, double speed) {
+    public ShootCommand(ShootSubsystem subsystem, double speed) {
         m_shooter = subsystem;
         m_targetSpeed = speed;
         

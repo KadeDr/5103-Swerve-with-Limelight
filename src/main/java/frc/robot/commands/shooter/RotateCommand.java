@@ -1,21 +1,18 @@
 package frc.robot.commands.shooter;
 
-import java.io.Console;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.ShooterConstants;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 public class RotateCommand extends Command {
-    private final ShooterSubsystem m_shooterSubsystem;
+    private final TurretSubsystem m_TurretSubsystem;
     private final CommandXboxController m_controller;
     private double m_targetSpeed;
 
-    public RotateCommand(ShooterSubsystem shooterSubsystem, CommandXboxController controller) {
-        m_shooterSubsystem = shooterSubsystem;
+    public RotateCommand(TurretSubsystem TurretSubsystem, CommandXboxController controller) {
+        m_TurretSubsystem = TurretSubsystem;
         m_controller = controller;
-        addRequirements(m_shooterSubsystem);
+        addRequirements(m_TurretSubsystem);
     }
 
     @Override
@@ -28,13 +25,13 @@ public class RotateCommand extends Command {
 
         System.out.println("Running rotate command!" + m_targetSpeed);
 
-        // if (m_shooterSubsystem.getPosition() >= ShooterConstants.kMaxRotationLeft || m_shooterSubsystem.getPosition() <= ShooterConstants.kMaxRotationRight) return;
-        m_shooterSubsystem.turnTableVelocity(m_targetSpeed);
+        // if (m_TurretSubsystem.getPosition() >= ShooterConstants.kMaxRotationLeft || m_TurretSubsystem.getPosition() <= ShooterConstants.kMaxRotationRight) return;
+        m_TurretSubsystem.turnTableVelocity(m_targetSpeed);
     }
 
     @Override
     public void end(boolean isFinished) {
         // Check if error is small (e.g., within 2 degrees)
-        m_shooterSubsystem.turnTableVelocity(0);
+        m_TurretSubsystem.turnTableVelocity(0);
     }
 }

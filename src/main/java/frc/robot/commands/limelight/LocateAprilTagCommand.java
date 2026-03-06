@@ -3,16 +3,19 @@ package frc.robot.commands.limelight;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShootSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 public class LocateAprilTagCommand extends Command {
-    private final ShooterSubsystem m_shooterSubsystem;
+    private final ShootSubsystem m_shootSubsystem;
+    private final TurretSubsystem m_turretSubsystem;
     private final String m_limelightName;
 
-    public LocateAprilTagCommand(ShooterSubsystem shooterSubsystem, String limelightName) {
-        m_shooterSubsystem = shooterSubsystem;
+    public LocateAprilTagCommand(ShootSubsystem shootSubsystem, TurretSubsystem turretSubsystem, String limelightName) {
+        m_shootSubsystem = shootSubsystem;
+        m_turretSubsystem = turretSubsystem;
         m_limelightName = limelightName;
-        addRequirements(m_shooterSubsystem);
+        addRequirements(m_shootSubsystem);
     }
 
     @Override
@@ -29,7 +32,7 @@ public class LocateAprilTagCommand extends Command {
             return;
         }
 
-        double turretPosition = m_shooterSubsystem.getPosition();
+        double turretPosition = m_turretSubsystem.getPosition();
 
         double maxRotationLeft = ShooterConstants.kMaxRotationLeft;
         double maxRotationRight = ShooterConstants.kMaxRotationRight;
@@ -42,6 +45,6 @@ public class LocateAprilTagCommand extends Command {
             targetPosition = maxRotationLeft;
         }
 
-        m_shooterSubsystem.turnTable(targetPosition);
+        m_turretSubsystem.turnTable(targetPosition);
     }
 }

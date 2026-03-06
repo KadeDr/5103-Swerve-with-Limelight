@@ -1,13 +1,13 @@
 package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 public class TurnCommand extends Command {
-    private final ShooterSubsystem m_shooterSubsystem;
+    private final TurretSubsystem m_shooterSubsystem;
     private final double m_targetPosition;
 
-    public TurnCommand(ShooterSubsystem shooterSubsystem, double targetPosition) {
+    public TurnCommand(TurretSubsystem shooterSubsystem, double targetPosition) {
         m_shooterSubsystem = shooterSubsystem;
         m_targetPosition = targetPosition;
         addRequirements(m_shooterSubsystem);

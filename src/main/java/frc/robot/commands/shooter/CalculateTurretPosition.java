@@ -1,20 +1,20 @@
 package frc.robot.commands.shooter;
 
-import java.io.Console;
-
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.ShooterConstants;
-import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 
 public class CalculateTurretPosition extends Command {
-    private final ShooterSubsystem m_shooterSubsystem;
+    private final TurretSubsystem m_turretSubsystem;
     private final String m_limelightName;
+    private boolean isTurning;
 
-    public CalculateTurretPosition(ShooterSubsystem shooterSubsystem, String limelightName) {
-        m_shooterSubsystem = shooterSubsystem;
+    public CalculateTurretPosition(TurretSubsystem turretSubsystem, String limelightName) {
+        m_turretSubsystem = turretSubsystem;
         m_limelightName = limelightName;
-        addRequirements(m_shooterSubsystem);
+        addRequirements(m_turretSubsystem);
     }
 
     @Override
@@ -25,16 +25,19 @@ public class CalculateTurretPosition extends Command {
 
     @Override
     public void execute() {
-        System.out.println("Turning turntable!");
+        SmartDashboard.putBoolean("Turntable Turning", isTurning);
         boolean tv = LimelightHelpers.getTV(m_limelightName);
 
         if (!tv) {
+            // isTurning = false;
             return;
         }
 
+        isTurning = true;
+
         double tx = -LimelightHelpers.getTX(m_limelightName);
 
-        double turretPosition = m_shooterSubsystem.getPosition();
+        double turretPosition = m_turretSubsystem.getPosition();
         double targetPosition = turretPosition + tx;
 
         double maxRotationLeft = ShooterConstants.kMaxRotationLeft;
@@ -46,6 +49,11 @@ public class CalculateTurretPosition extends Command {
             targetPosition = maxRotationLeft;
         }
 
-        m_shooterSubsystem.turnTable(targetPosition);
+        m_turretSubsystem.turnTable(targetPosition);
+    }
+
+    @Override
+    public void end(boolean isFinished) {
+        m_turretSubsystem.stopMotors();
     }
 }

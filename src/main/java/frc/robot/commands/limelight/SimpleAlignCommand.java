@@ -3,7 +3,6 @@ package frc.robot.commands.limelight;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.LimelightHelpers;
@@ -49,11 +48,6 @@ public class SimpleAlignCommand extends Command {
         double tx = LimelightHelpers.getTX(limelightName); // Left/Right error
         double ty = LimelightHelpers.getTY(limelightName); // Distance error
 
-        // POST TO DASHBOARD (Essential for debugging!)
-        SmartDashboard.putBoolean("Limelight/HasTarget", hasTarget);
-        SmartDashboard.putNumber("Limelight/tx", tx);
-        SmartDashboard.putNumber("Limelight/ty", ty);
-
         if (!hasTarget) {
             // If no target, stop safely.
             robotDrive.drive(0, 0, 0, false, 0);
@@ -77,9 +71,6 @@ public class SimpleAlignCommand extends Command {
         // Keeps the robot from going too fast while testing
         rotSpeed = MathUtil.clamp(rotSpeed, -0.3, 0.3);
         forwardSpeed = MathUtil.clamp(forwardSpeed, -0.3, 0.3);
-
-        SmartDashboard.putNumber("Limelight/ForwardSpeed", forwardSpeed);
-        SmartDashboard.putNumber("Limelight/RotSpeed", rotSpeed);
 
         // --- 4. DRIVE ---
         // Note: No "Strafe" (ySpeed) in this simple version to isolate the issue.

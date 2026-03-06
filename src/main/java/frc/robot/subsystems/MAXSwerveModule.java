@@ -112,44 +112,4 @@ public class MAXSwerveModule {
   public void resetEncoders() {
     m_drivingEncoder.setPosition(0);
   }
-
-  // ======================================
-  // SysId code :)
-  // ======================================
-
-  /**
-   * Applies raw voltage to the drive motor. Used for SysId.
-   *
-   * @param volts The voltage to apply.
-   */
-  public void setDriveVoltage(double volts) {
-    m_drivingSpark.setVoltage(volts); // Change to m_drivingSparkFlex if using Vortex
-  }
-
-  /**
-   * Gets the applied voltage of the drive motor.
-   *
-   * @return The applied voltage.
-   */
-  public double getDriveVoltage() {
-    return m_drivingSpark.getAppliedOutput() * m_drivingSpark.getBusVoltage();
-  }
-
-  /**
-   * Gets the drive motor position in meters.
-   *
-   * @return Position in meters.
-   */
-  public double getDrivePositionMeters() {
-    return m_drivingEncoder.getPosition();
-  }
-
-  /**
-   * Gets the drive motor velocity in meters per second.
-   *
-   * @return Velocity in meters per second.
-   */
-  public double getDriveVelocityMetersPerSecond() {
-    return m_drivingEncoder.getVelocity();
-  }
 }

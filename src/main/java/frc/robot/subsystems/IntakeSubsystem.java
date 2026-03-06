@@ -13,18 +13,17 @@ import frc.robot.Configs.IntakeConfigs;
 
 public class IntakeSubsystem extends SubsystemBase{
     private SparkFlex m_sparkFlex;
+    private SparkFlex m_leftFlex;
     private final SparkClosedLoopController m_clc;
+    private final SparkClosedLoopController m_leftCLC;
 
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("Intake Speed (RPM)", m_sparkFlex.getEncoder().getVelocity());
-        SmartDashboard.putNumber("Applied Output", m_sparkFlex.getAppliedOutput());
-    }
-
-    public IntakeSubsystem(int canId) {
+    public IntakeSubsystem(int canId, int leftCanId) {
         m_sparkFlex = new SparkFlex(canId, MotorType.kBrushless);
+        m_leftFlex = new SparkFlex(leftCanId, MotorType.kBrushless);
         m_clc = m_sparkFlex.getClosedLoopController();
+        m_leftCLC = m_leftFlex.getClosedLoopController();
         m_sparkFlex.configure(IntakeConfigs.mainConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_leftFlex.configure(IntakeConfigs.invertedConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void runVelocity(double targetRpm) {
