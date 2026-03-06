@@ -7,7 +7,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.IntakeConfigs;
 
@@ -15,13 +14,11 @@ public class IntakeSubsystem extends SubsystemBase{
     private SparkFlex m_sparkFlex;
     private SparkFlex m_leftFlex;
     private final SparkClosedLoopController m_clc;
-    private final SparkClosedLoopController m_leftCLC;
 
     public IntakeSubsystem(int canId, int leftCanId) {
         m_sparkFlex = new SparkFlex(canId, MotorType.kBrushless);
         m_leftFlex = new SparkFlex(leftCanId, MotorType.kBrushless);
         m_clc = m_sparkFlex.getClosedLoopController();
-        m_leftCLC = m_leftFlex.getClosedLoopController();
         m_sparkFlex.configure(IntakeConfigs.mainConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         m_leftFlex.configure(IntakeConfigs.invertedConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }

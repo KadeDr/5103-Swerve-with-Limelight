@@ -2,6 +2,8 @@ package frc.robot.commands.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Configs.ShooterConfigs;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.subsystems.TurretSubsystem;
 
 public class RotateCommand extends Command {
@@ -16,6 +18,11 @@ public class RotateCommand extends Command {
     }
 
     @Override
+    public void initialize() {
+        m_TurretSubsystem.reconfigureTurntable(ShooterConfigs.velocityTurntableConfig);
+    }
+
+    @Override
     public void execute() {
         if (m_controller.getLeftTriggerAxis() > m_controller.getRightTriggerAxis()) {
             m_targetSpeed = -m_controller.getLeftTriggerAxis() * 100;
@@ -23,15 +30,16 @@ public class RotateCommand extends Command {
             m_targetSpeed = m_controller.getRightTriggerAxis() * 100;
         }
 
-        System.out.println("Running rotate command!" + m_targetSpeed);
+        if (m_TurretSubsystem.getPosition() <= ShooterConstants.kMaxRotationLeft
+                || m_TurretSubsystem.getPosition() >= ShooterConstants.kMaxRotationRight) {
+            return;
+        }
 
-        // if (m_TurretSubsystem.getPosition() >= ShooterConstants.kMaxRotationLeft || m_TurretSubsystem.getPosition() <= ShooterConstants.kMaxRotationRight) return;
         m_TurretSubsystem.turnTableVelocity(m_targetSpeed);
     }
 
     @Override
     public void end(boolean isFinished) {
-        // Check if error is small (e.g., within 2 degrees)
         m_TurretSubsystem.turnTableVelocity(0);
     }
 }

@@ -15,6 +15,8 @@ public class IndexerSubsystem extends SubsystemBase {
     private final SparkMax m_sparkMax;
     private final SparkClosedLoopController m_clc;
 
+    public boolean isLocatingTarget = false;
+
     public IndexerSubsystem(int canId) {
         m_sparkMax = new SparkMax(canId, MotorType.kBrushless);
         m_clc = m_sparkMax.getClosedLoopController();

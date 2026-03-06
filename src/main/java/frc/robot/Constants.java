@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -9,18 +5,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
-/**
- * The Constants class provides a convenient place for teams to hold robot-wide
- * numerical or boolean
- * constants. This class should not be used for any other purpose. All constants
- * should be declared
- * globally (i.e. public static). Do not put anything functional in this class.
- *
- * <p>
- * It is advised to statically import this class (or one of its inner classes)
- * wherever the
- * constants are needed, to reduce verbosity.
- */
 public final class Constants {
   public static final class IntakeConstants {
     public static final int canId = 11;
@@ -54,25 +38,12 @@ public final class Constants {
         new Translation2d(-kWheelBase / 2, kTrackWidth / 2),
         new Translation2d(-kWheelBase / 2, -kTrackWidth / 2));
 
-    // Angular offsets of the modules relative to the chassis in radians
-    // public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2; //
-    // Change this to Math.PI / 2 for Stone Bot
-    // public static final double kFrontRightChassisAngularOffset = 0;
-    // public static final double kBackLeftChassisAngularOffset = Math.PI;
-    // public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
-    // Angular offsets of the modules relative to the chassis in radians
-    // Updated Angular offsets
-    // FL and BR are your "good" modules
     public static final double kFrontLeftChassisAngularOffset = -Math.PI / 2;
-    public static final double kBackRightChassisAngularOffset = Math.PI / 2; // Note: This is effectively the same
-                                                                             // orientation as FL for BR position
+    public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
-    // Adjusting the ones that were off by -90 degrees
-    // We add Math.PI / 2 (90 degrees) to "zero" them,
-    // then potentially another Math.PI if the wheel spins the wrong way.
-    public static final double kFrontRightChassisAngularOffset = 0 / 2; // If it was -90, 0 usually brings it forward
-    public static final double kBackLeftChassisAngularOffset = Math.PI; // Adjusting to match the orientation of the frame
+    public static final double kFrontRightChassisAngularOffset = 0 / 2;
+    public static final double kBackLeftChassisAngularOffset = Math.PI;
 
     // SPARK MAX CAN IDs
     public static final int kFrontLeftDrivingCanId = 8;
@@ -84,17 +55,6 @@ public final class Constants {
     public static final int kRearLeftTurningCanId = 3;
     public static final int kFrontRightTurningCanId = 5;
     public static final int kRearRightTurningCanId = 1;
-
-    // JUGG SPARK MAX CAN IDs\
-    // public static final int kFrontLeftDrivingCanId = 1;
-    // public static final int kRearLeftDrivingCanId = 5;
-    // public static final int kFrontRightDrivingCanId = 3;
-    // public static final int kRearRightDrivingCanId = 7;
-
-    // public static final int kFrontLeftTurningCanId = 2;
-    // public static final int kRearLeftTurningCanId = 6;
-    // public static final int kFrontRightTurningCanId = 4;
-    // public static final int kRearRightTurningCanId = 8;
 
     public static final boolean kGyroReversed = false;
   }

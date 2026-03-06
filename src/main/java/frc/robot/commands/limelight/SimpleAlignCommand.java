@@ -96,6 +96,5 @@ public class SimpleAlignCommand extends Command {
         robotDrive.drive(0, 0, 0, false, 0);
         controller.setRumble(RumbleType.kBothRumble, 0);
         LimelightHelpers.setPriorityTagID(limelightName, -1);
-        System.out.println("Alignment Ended");
     }
 }

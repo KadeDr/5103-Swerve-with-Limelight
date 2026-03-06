@@ -5,11 +5,10 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.ShooterConfigs;
 
@@ -22,11 +21,14 @@ public class TurretSubsystem extends SubsystemBase{
         m_turntable = new SparkMax(turnTableCanId, MotorType.kBrushless);
         m_turntableCLC = m_turntable.getClosedLoopController();
         m_turnTableEncoder = m_turntable.getEncoder();
-        m_turntable.configure(ShooterConfigs.turntableConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        m_turntable.configure(ShooterConfigs.positionTurntableConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    public void reconfigureTurntable(SparkMaxConfig config) {
+        m_turntable.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public void turnTable(double targetPosition) {
-        // if (targetPosition < ShooterConstants.kMaxRotationLeft && targetPosition > ShooterConstants.kMaxRotationRight) { return; }
         m_turntableCLC.setSetpoint(targetPosition, ControlType.kPosition);
     }
 

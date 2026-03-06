@@ -3,7 +3,6 @@ package frc.robot;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.FeedbackSensor;
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import frc.robot.Constants.IntakeConstants;
@@ -12,7 +11,8 @@ import frc.robot.Constants.ModuleConstants;
 public final class Configs {
         public static final class ShooterConfigs {
                 public static final SparkMaxConfig shooterConfig = new SparkMaxConfig();
-                public static final SparkMaxConfig turntableConfig = new SparkMaxConfig();
+                public static final SparkMaxConfig positionTurntableConfig = new SparkMaxConfig();
+                public static final SparkMaxConfig velocityTurntableConfig = new SparkMaxConfig();
 
                 static {
                         shooterConfig
@@ -25,12 +25,19 @@ public final class Configs {
                                         .p(0.00022).feedForward.kV(0.00017);
                         // .feedForward.kV(0.0000001);
 
-                        turntableConfig.encoder
+                        positionTurntableConfig.encoder
                                         .positionConversionFactor(9)
                                         .velocityConversionFactor(0.025);
-                        turntableConfig.closedLoop
+                        positionTurntableConfig.closedLoop
                                         .p(0.025) // 0.038 worked for position, .0015 for velocity control
                                         .outputRange(-.4, .4);
+
+                        velocityTurntableConfig.encoder
+                                        .positionConversionFactor(9)
+                                        .velocityConversionFactor(0.025);
+                        velocityTurntableConfig.closedLoop
+                                        .p(0.0015)
+                                        .outputRange(-.1, .1);
                 }
         }
 
@@ -94,7 +101,6 @@ public final class Configs {
                                         .velocityConversionFactor(drivingFactor / 60.0); // meters per second
                         drivingConfig.closedLoop
                                         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-                                        // These are example gains you may need to them for your own robot!
                                         .pid(0.04, 0, 0)
                                         .outputRange(-1, 1).feedForward.kV(drivingVelocityFeedForward);
 
@@ -102,20 +108,13 @@ public final class Configs {
                                         .idleMode(IdleMode.kBrake)
                                         .smartCurrentLimit(20);
                         turningConfig.absoluteEncoder
-                                        // Invert the turning encoder, since the output shaft rotates in the opposite
-                                        // direction of the steering motor in the MAXSwerve Module.
                                         .inverted(true)
                                         .positionConversionFactor(turningFactor) // radians
                                         .velocityConversionFactor(turningFactor / 60.0); // radians per second
                         turningConfig.closedLoop
                                         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-                                        // These are example gains you may need to them for your own robot!
                                         .pid(1, 0, 0)
                                         .outputRange(-1, 1)
-                                        // Enable PID wrap around for the turning motor. This will allow the PID
-                                        // controller to go through 0 to get to the setpoint i.e. going from 350 degrees
-                                        // to 10 degrees will go through 0 rather than the other direction which is a
-                                        // longer route.
                                         .positionWrappingEnabled(true)
                                         .positionWrappingInputRange(0, turningFactor);
                 }
