@@ -39,16 +39,17 @@ public class ShootWithLimelightCommand extends Command {
 
     @Override
     public void execute() {
-        controller.povLeft().whileTrue(new InstantCommand(() -> isReversed = true));
-        controller.povLeft().whileFalse(new InstantCommand(() -> isReversed = false));
+        controller.leftBumper().whileTrue(new InstantCommand(() -> isReversed = true));
+        controller.leftBumper().whileFalse(new InstantCommand(() -> isReversed = false));
         System.out.println("Running shooter!");
         boolean tv = LimelightHelpers.getTV(limelightName);
         double id = LimelightHelpers.getFiducialID(limelightName);
-        boolean isCorrectTag = (id == 12 || id == 16);
+        boolean isCorrectTag = (id == 10 || id == 2 || id == 5 || id == 26 || id == 21 || id == 18);
 
-        if (!tv || !isCorrectTag)
+        if (!tv || !isCorrectTag) {
+            System.out.println("Incorrect tag or no target!");
             return;
-
+        }
         double h1 = LimelightConstants.PhysicalConstants.kLimelightHeightInches;
         double h2 = LimelightConstants.PhysicalConstants.kHubAprilTagHeightInches;
 
@@ -63,10 +64,10 @@ public class ShootWithLimelightCommand extends Command {
         shootSubsystem.runVelocity(speedRpm);
 
         // Remove these lines if the stop while locating breaks
-        if (indexerSubsystem.isLocatingTarget) {
-            indexerSubsystem.stopMotor();
-            return;
-        }
+        // if (indexerSubsystem.isLocatingTarget) {
+        // indexerSubsystem.stopMotor();
+        // return;
+        // }
 
         if (!hasStarted) {
             Timer.delay(0.5);
@@ -74,9 +75,9 @@ public class ShootWithLimelightCommand extends Command {
         }
 
         if (isReversed) {
-            indexerSubsystem.spin(-1500);
+            indexerSubsystem.spin(-2000);
         } else {
-            indexerSubsystem.spin(1500);
+            indexerSubsystem.spin(2000);
         }
     }
 

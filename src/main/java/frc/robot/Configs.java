@@ -5,6 +5,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import frc.robot.Constants.IndexerConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.ModuleConstants;
 
@@ -42,7 +43,9 @@ public final class Configs {
         }
 
         public static final class IndexerConfigs {
-                public static final SparkMaxConfig mainConfig = new SparkMaxConfig();
+                public static final SparkFlexConfig mainConfig = new SparkFlexConfig();
+                public static final SparkFlexConfig followerConfig = new SparkFlexConfig();
+                public static final SparkFlexConfig serializerConfig = new SparkFlexConfig();
 
                 static {
                         mainConfig
@@ -50,11 +53,28 @@ public final class Configs {
                         mainConfig.softLimit
                                         .forwardSoftLimitEnabled(false)
                                         .reverseSoftLimitEnabled(false);
+                        mainConfig.encoder
+                                        .positionConversionFactor(0.25)
+                                        .velocityConversionFactor(0.25);
                         mainConfig.closedLoop
                                         .outputRange(-1, 1)
-                                        .p(0.005103)
-                                        .feedForward.kV(0.000285);
-                        // .feedForward.kV(0.0000001);
+                                        .p(0.0001).feedForward.kV(0.0002);
+
+                        followerConfig
+                                        .apply(mainConfig)
+                                        .follow(IndexerConstants.canId, true);
+
+                        serializerConfig
+                                        .smartCurrentLimit(60);
+                        serializerConfig.softLimit
+                                        .forwardSoftLimitEnabled(false)
+                                        .reverseSoftLimitEnabled(false);
+                        serializerConfig.encoder
+                                        .positionConversionFactor(0.25) // Assuming the serializer uses the same ratio
+                                        .velocityConversionFactor(0.25);
+                        serializerConfig.closedLoop
+                                        .outputRange(-1, 1)
+                                        .p(0.0003).feedForward.kV(0.0003);
                 }
         }
 

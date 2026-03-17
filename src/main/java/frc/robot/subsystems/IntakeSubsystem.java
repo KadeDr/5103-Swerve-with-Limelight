@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Configs.IntakeConfigs;
 
 public class IntakeSubsystem extends SubsystemBase{
-    private SparkFlex m_sparkFlex;
-    private SparkFlex m_leftFlex;
+    private final SparkFlex m_sparkFlex;
+    private final SparkFlex m_leftFlex;
     private final SparkClosedLoopController m_clc;
 
     public IntakeSubsystem(int canId, int leftCanId) {

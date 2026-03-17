@@ -12,6 +12,8 @@ public final class Constants {
   }
   public static final class IndexerConstants {
     public static final int canId = 10;
+    public static final int secondCanId = 14;
+    public static final int spindexerCanId = 15;
   }
   public static final class ShooterConstants {
     public static final int shooterCanId = 12;

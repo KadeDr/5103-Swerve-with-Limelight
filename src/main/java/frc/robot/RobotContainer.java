@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -13,10 +14,12 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.autonomous.AutonomousShootCommand;
+import frc.robot.commands.intake.AutonomousIntakeCommand;
 import frc.robot.commands.intake.IntakeCommand;
 import frc.robot.commands.shooter.CalculateTurretPosition;
 import frc.robot.commands.shooter.RotateCommand;
 import frc.robot.commands.shooter.ShootWithLimelightCommand;
+import frc.robot.commands.shooter.SpindexerCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -55,15 +58,20 @@ public class RobotContainer extends SubsystemBase {
         private boolean fieldRelative = true;
 
         private final SendableChooser<Command> m_chooser = new SendableChooser<>();
+        private final SendableChooser<String> m_alliance = new SendableChooser<>();
 
         public RobotContainer() {
                 NamedCommands.registerCommand("Shoot",
                                 new ParallelCommandGroup(
-                                                new ShootWithLimelightCommand(m_robotShooter, m_robotIndexer, 12,
-                                                                "limelight-main", m_driverController),
-                                                new CalculateTurretPosition(m_robotTurret, "limelight-main")));
+                                                new AutonomousShootCommand(m_robotShooter, m_robotIndexer, 2950,
+                                                                m_driverController),
+                                                new AutonomousIntakeCommand(m_robotIntake, -1500)));
+                // new ParallelCommandGroup(
+                // new AutonomousShootCommand(m_robotShooter, m_robotIndexer, 2950,
+                // m_driverController)));
+                // new CalculateTurretPosition(m_robotTurret, "limelight-main",
+                // m_alliance.getSelected())));
 
-                setupShuffleboard();
                 configureButtonBindings();
                 m_robotDrive.zeroHeading();
 
@@ -86,12 +94,7 @@ public class RobotContainer extends SubsystemBase {
                                         m_robotDrive.drive(xSpeed, ySpeed, rot, fieldRelative, 0);
                                 }, m_robotDrive));
 
-                Command eightAuto = new PathPlannerAuto("8 Shoot");
-
-                m_chooser.setDefaultOption("8 Shoot", eightAuto);
-                m_chooser.addOption("Do Nothing", new WaitCommand(20));
-
-                SmartDashboard.putData("Auto Mode", m_chooser);
+                setupShuffleboard();
         }
 
         private void configureButtonBindings() {
@@ -105,33 +108,44 @@ public class RobotContainer extends SubsystemBase {
                                                                                                                // Field
                                                                                                                // Relativity
                 m_driverController.rightBumper().toggleOnTrue(
-                                new ShootWithLimelightCommand(m_robotShooter, m_robotIndexer, 12,
+                                new ShootWithLimelightCommand(m_robotShooter, m_robotIndexer, 10,
                                                 "limelight-main", m_driverController)); // Toggle Limelight Shooter
                                                                                         // Sequence
-                m_driverController.leftBumper().toggleOnTrue(
-                                new AutonomousShootCommand(m_robotShooter, m_robotIndexer, 2500)); // Toggle Manual
-                                                                                                   // Shooter Sequence
+
+                m_driverController.leftBumper().toggleOnFalse(new SpindexerCommand(m_robotIndexer));
 
                 // ====================
                 // Turret Controls (Josh)
                 // ====================
                 m_turretController.leftTrigger().whileTrue(new RotateCommand(m_robotTurret, m_turretController)); // Rotate
-                                                                                                                  // turret
-                                                                                                                  // counter-clockwise
+                // turret
+                // counter-clockwise
                 m_turretController.rightTrigger().whileTrue(new RotateCommand(m_robotTurret, m_turretController)); // Rotate
-                                                                                                                   // turret
-                                                                                                                   // clockwise
+                // turret
+                // clockwise
                 m_turretController.rightBumper().whileTrue(new RunCommand(() -> m_robotDrive.setX(), m_robotDrive)); // Toggle
-                                                                                                                     // x-formation
-                m_turretController.x().toggleOnTrue(new CalculateTurretPosition(m_robotTurret, "limelight-main")); // Start
-                                                                                                                   // Turret
-                                                                                                                   // Position
-                                                                                                                   // Calculation
+                // x-formation
+                m_turretController.x().toggleOnTrue(
+                                new CalculateTurretPosition(m_robotTurret, "limelight-main", m_alliance.getSelected())); // Start
+                // Turret
+                // Position
+                // Calculation
+                m_turretController.leftBumper().toggleOnTrue(
+                                new AutonomousShootCommand(m_robotShooter, m_robotIndexer, 3050, m_driverController)); // Toggle
+                                                                                                                       // Manual
+                // Shooter Sequence
         }
 
         @Override
         public void periodic() {
-                SmartDashboard.putBoolean("Field Relative", fieldRelative);
+                // isLocked = LimelightHelpers.getFiducialID("limelight-main") == 26
+                // || LimelightHelpers.getFiducialID("limelight-main") == 21 ||
+                // LimelightHelpers.getFiducialID("limelight-main") == 18
+                // || LimelightHelpers.getFiducialID("limelight-main") == 5
+                // || LimelightHelpers.getFiducialID("limelight-main") == 10
+                // || LimelightHelpers.getFiducialID("limelight-main") == 2;
+
+                // turretLocked = isLocked ? "Turret Locked" : "Turret Not Locked";
         }
 
         // ====================
@@ -139,6 +153,32 @@ public class RobotContainer extends SubsystemBase {
         // ===================
         private void setupShuffleboard() {
                 ShuffleboardTab layoutTab = Shuffleboard.getTab("Control Bindings");
+
+                boolean isLocked = LimelightHelpers.getFiducialID("limelight-main") == 26
+                                || LimelightHelpers.getFiducialID("limelight-main") == 21 ||
+                                LimelightHelpers.getFiducialID("limelight-main") == 18
+                                || LimelightHelpers.getFiducialID("limelight-main") == 5
+                                || LimelightHelpers.getFiducialID("limelight-main") == 10
+                                || LimelightHelpers.getFiducialID("limelight-main") == 2;
+
+                String turretLocked = isLocked ? "Turret Locked" : "Turret Not Locked";
+
+                Command eightAuto = new PathPlannerAuto("8 Shoot");
+                Command sideAuto = new ParallelCommandGroup(
+                                new AutonomousShootCommand(m_robotShooter, m_robotIndexer, 2950, m_driverController),
+                                new AutonomousIntakeCommand(m_robotIntake, -1500));
+                // new ParallelCommandGroup(
+                // new AutonomousShootCommand(m_robotShooter, m_robotIndexer, 2950,
+                // m_driverController),
+                // new CalculateTurretPosition(m_robotTurret, "limelight-main",
+                // m_alliance.getSelected()));
+
+                m_chooser.setDefaultOption("8 Shoot", eightAuto);
+                m_chooser.addOption("Side Shoot", sideAuto);
+                m_chooser.addOption("Do Nothing", new WaitCommand(20));
+
+                m_alliance.setDefaultOption("Red", "Red");
+                m_alliance.addOption("Blue", "Blue");
 
                 var driverLayout = layoutTab.getLayout("Driver (Stone)", BuiltInLayouts.kList)
                                 .withSize(2, 4)
@@ -149,7 +189,6 @@ public class RobotContainer extends SubsystemBase {
                 driverLayout.addString("A Button", () -> "Hold Outtake (750)");
                 driverLayout.addString("POV Left", () -> "Toggle Field Relative");
                 driverLayout.addString("Right Bumper", () -> "Limelight Shoot Seq");
-                driverLayout.addString("Left Bumper", () -> "Manual Shoot Seq");
 
                 var turretLayout = layoutTab.getLayout("Turret (Josh)", BuiltInLayouts.kList)
                                 .withSize(2, 3)
@@ -158,11 +197,25 @@ public class RobotContainer extends SubsystemBase {
                 turretLayout.addString("Triggers", () -> "Rotate Turret");
                 turretLayout.addString("Right Bumper", () -> "Set X-Pattern");
                 turretLayout.addString("X Button", () -> "Auto-Aim (Limelight)");
+                turretLayout.addString("Left Bumper", () -> "Manual Shoot Seq");
+
+                layoutTab.add("Alliance", m_alliance)
+                                .withPosition(4, 1);
+                layoutTab.add("Autonomous", m_chooser)
+                                .withPosition(4, 2);
+
+                layoutTab.addString(turretLocked, () -> turretLocked);
 
                 layoutTab.addBoolean("Field Relative", () -> fieldRelative)
                                 .withPosition(4, 0)
                                 .withWidget("Boolean Box")
                                 .withProperties(Map.of("Color when true", "Green", "Color when false", "Red"));
+                layoutTab.addDouble("Gyro Degree", () -> m_robotDrive.getHeading())
+                                .withPosition(2, 3)
+                                .withWidget("Gyro");
+                
+                layoutTab.addDouble("Indexer Speed", () -> m_robotIndexer.getRPM())
+                        .withPosition(4, 4);
         }
 
         public Command getAutonomousCommand() {
